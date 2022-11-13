@@ -1,0 +1,128 @@
+#include <algorithm>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <string>
+#include <vector>
+
+using namespace std;
+using namespace std::chrono;
+
+map<string, int> Frequency_Single(vector<vector<string>> Data) {
+    map<string, int> Frequency;
+    for (int i = 0; i < Data.size(); i++) {
+        for (int j = 0; j < Data[i].size(); j++) {
+            if (Frequency[Data[i][j]] == 0) {
+                Frequency[Data[i][j]] = 1;
+            } else {
+                Frequency[Data[i][j]] += 1;
+            }
+        }
+    }
+
+    return (Frequency);
+}
+
+map<vector<string>, int>
+Frequency_Combination(vector<vector<string>> Data,
+                      vector<vector<string>> Combinations) {
+    map<vector<string>, int> Frequency;
+
+    for (int i = 0; i < Data.size(); i++) {
+        for (int j = 0; j < Combinations.size(); j++) {
+            if (includes(Data[i].begin(), Data[i].end(),
+                         Combinations[j].begin(), Combinations[j].end())) {
+                if (Frequency[Combinations[j]] == 0) {
+                    Frequency[Combinations[j]] = 1;
+                } else {
+                    Frequency[Combinations[j]] += 1;
+                }
+            }
+        }
+    }
+
+    return (Frequency);
+}
+
+
+
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        cout << "Please give proper arguement " << '\n';
+        exit(0);
+    }
+
+    int pairs = 2;
+    string file_name;
+
+    vector<vector<string>> Data;
+
+    if (argv[1][0] == '1')
+        file_name = "groceries.txt";
+    else if (argv[1][0] == '2')
+        file_name = "groceries_big.txt";
+    else if (argv[1][0] == '3')
+        file_name = "groceries_big0.txt";
+    else {
+        cout << "Invalid Input" << '\n';
+        exit(0);
+    }
+
+    int line_count = 0;
+    string line;
+    ifstream file(file_name);
+    while (getline(file, line))
+        line_count++;
+    int Count;
+    cout << '\n' << "Total Records : " << line_count << '\n';
+    cout << '\n' << "Minimum Frequency Count : ";
+    cin >> Count;
+
+    auto start = high_resolution_clock::now();
+    Data = Read_File(file_name);
+    // int Total_Records = Data.size();
+    bool Flag = 0;
+    vector<string> Frequent_List;
+
+    map<string, int> Frequency = Frequency_Single(Data);
+
+    for (auto i : Frequency) {
+        if (i.second >= Count) {
+            if (!Flag) {
+                cout << '\n'
+                     << "Frequent Items according Minimum Frequency Criteria "
+                        "are : "
+                     << '\n';
+                cout << "Frequent Combinations are : " << '\n';
+                cout << "================================================"
+                     << '\n'
+                     << '\n';
+                Flag = 1;
+            }
+            Frequent_List.push_back(i.first);
+            cout << i.first << " : " << i.second << '\n';
+        }
+    }
+    if (Frequent_List.size() == 1) {
+        cout << "Only 1 item fulfill the Minimum Frequency Criteria : " << '\n'
+             << '\n';
+        cout << "Result : " << Frequent_List[0] << '\n';
+    } else if (Frequent_List.size() == 0) {
+        cout << "No item can fulfill the Minimum Frequency Criteria" << '\n';
+    } else  (Frequent_List.size() == pairs) {
+        cout
+            << '\n'
+            << "Above 2 items are frequent based on Minimum Frequency Criteria "
+            << '\n';
+    } 
+
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    float time_taken = duration.count() / 1000;
+    cout << "Time Taken by the Serial Execution : " << time_taken
+         << " Milliseconds " << '\n';
+
+   
+}
